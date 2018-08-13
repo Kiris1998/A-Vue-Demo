@@ -12,16 +12,20 @@
                              <el-table-column prop="count" label="数量">
 
                             </el-table-column>
-                             <el-table-column prop="price" label="金额">
+                             <el-table-column prop="price" label="单价">
 
                             </el-table-column>
                             <el-table-column label="操作">
                                 <template slot-scope="scope">
-                                    <el-button type="text" size="small">增加</el-button>
+                                    <el-button type="text" size="small" @click="addFoods(scope.row)">增加</el-button>
                                     <el-button type="text" size="small">删除</el-button>
                                 </template>
                             </el-table-column>
                         </el-table>
+                        <div class="total">
+                            <div>数量：{{tabelCounts}}</div>
+                            <div>金额:￥{{tabelPrice}}</div>
+                        </div>
                         <div class="btns">
                             <el-button type="warning" >挂单</el-button>
                             <el-button type="danger" >删除</el-button>
@@ -37,7 +41,7 @@
                     <div class="title">常用商品</div>
                     <div class="often-goods-list">
                         <ul>
-                            <li v-for="item in oftenGoods" :key="item.goodId">
+                            <li v-for="item in oftenGoods" :key="item.goodId" @click="addFoods(item)">
                                 <span>{{item.goodsName}}</span>
                                 <span class="o-price">￥{{item.price}}元</span>
                             </li>
@@ -47,7 +51,7 @@
                         <el-tabs>
                             <el-tab-pane label="汉堡">
                                 <ul class='cookList'>
-                                    <li v-for="item in type0Goods" :key="item.goodsId">
+                                    <li v-for="item in type0Goods" :key="item.goodsId" @click="addFoods(item)">
                                         <span class="foodImg"><img :src="item.goodsImg" width="100%"></span>
                                         <span class="foodName">{{item.goodsName}}</span>
                                         <span class="foodPrice">￥{{item.price}}元</span>
@@ -56,7 +60,7 @@
                             </el-tab-pane>
                             <el-tab-pane label="小食">
                                 <ul class='cookList'>
-                                    <li v-for="item in type1Goods" :key="item.goodsId">
+                                    <li v-for="item in type1Goods" :key="item.goodsId" @click="addFoods(item)">
                                         <span class="foodImg"><img :src="item.goodsImg" width="100%"></span>
                                         <span class="foodName">{{item.goodsName}}</span>
                                         <span class="foodPrice">￥{{item.price}}元</span>
@@ -65,7 +69,7 @@
                             </el-tab-pane>
                             <el-tab-pane label="饮料">
                                 <ul class='cookList'>
-                                    <li v-for="item in type2Goods" :key="item.goodsId">
+                                    <li v-for="item in type2Goods" :key="item.goodsId" @click="addFoods(item)">
                                         <span class="foodImg"><img :src="item.goodsImg" width="100%"></span>
                                         <span class="foodName">{{item.goodsName}}</span>
                                         <span class="foodPrice">￥{{item.price}}元</span>
@@ -74,7 +78,7 @@
                             </el-tab-pane>
                             <el-tab-pane label="套餐">
                                 <ul class='cookList'>
-                                    <li v-for="item in type3Goods" :key="item.goodsId">
+                                    <li v-for="item in type3Goods" :key="item.goodsId" @click="addFoods(item)">
                                         <span class="foodImg"><img :src="item.goodsImg" width="100%"></span>
                                         <span class="foodName">{{item.goodsName}}</span>
                                         <span class="foodPrice">￥{{item.price}}元</span>
@@ -101,7 +105,42 @@ export default{
       type0Goods: [],
       type1Goods: [],
       type2Goods: [],
-      type3Goods: []
+      type3Goods: [],
+      tabelCounts: 0,
+      tabelPrice: 0
+    }
+  },
+  methods: {
+    addFoods: function (food) {
+      let isExist = false
+      this.tableData.forEach(element => {
+        if (element.goodsId === food.goodsId) {
+          isExist = true
+        }
+      })
+
+      if (!isExist) {
+        let newFood = {
+          goodsId: food.goodsId,
+          goodsName: food.goodsName,
+          price: food.price,
+          count: 1
+        }
+        this.tableData.push(newFood)
+      } else {
+        let arr = this.tableData.filter(item => item.goodsId === food.goodsId)
+        let singlePrice = arr[0].price / arr[0].count
+        arr[0].count++
+        arr[0].price = singlePrice * arr[0].count
+      }
+      this.tabelCounts = 0
+      this.tabelPrice = 0
+      this.tableData.forEach(ele => {
+        this.tabelCounts += ele.count
+      })
+      this.tableData.forEach(ele => {
+        this.tabelPrice += ele.price
+      })
     }
   },
   created: function () {
@@ -187,5 +226,12 @@ export default{
        font-size: 16px;
        padding-left: 10px;
        padding-top:10px;
+    }
+    .total{
+      display:flex;
+      justify-content:space-between;
+      background:#fff;
+      border-bottom:solid 1px #D3DCE6;
+      padding:10px
     }
 </style>
