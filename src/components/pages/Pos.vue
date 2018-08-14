@@ -27,9 +27,9 @@
                             <div>金额:￥{{tabelPrice}}</div>
                         </div>
                         <div class="btns">
-                            <el-button type="warning" >挂单</el-button>
+                            <el-button type="warning" @click="save">挂单</el-button>
                             <el-button type="danger" @click="clear">清空</el-button>
-                            <el-button type="success" >结账</el-button>
+                            <el-button type="success" @click="pay">结账</el-button>
                         </div>
                     </el-tab-pane>
                     <el-tab-pane label="挂单">价格</el-tab-pane>
@@ -160,6 +160,30 @@ export default{
     },
     clear: function () {
       this.tableData = []
+    },
+    pay: function () {
+      if (this.tableData.length === 0) {
+        this.$message({
+          message: '亲，你的购物车是空的哦。',
+          type: 'error'
+        })
+      } else {
+        this.tableData = []
+        localStorage.removeItem('pay')
+        this.$message({
+          message: '下单成功！谢谢您的惠顾！',
+          type: 'success'
+        })
+      }
+    },
+    save: function () {
+      if (window.localStorage) {
+        localStorage.setItem('pay', JSON.stringify(this.tableData))
+        this.tableData = []
+        this.$message({
+          message: '已经为您挂单。'
+        })
+      }
     }
   },
   created: function () {
@@ -177,6 +201,12 @@ export default{
         this.type2Goods = res.data[2]
         this.type3Goods = res.data[3]
       })
+    if (localStorage.getItem('pay')) {
+      this.tableData = JSON.parse(localStorage.getItem('pay'))
+      this.$message({
+        message: '有您上回未完成的订单。'
+      })
+    }
   },
   mounted: function () {
     this.orderHeight = document.body.clientHeight + 'px'
