@@ -12,13 +12,13 @@
                              <el-table-column prop="count" label="数量">
 
                             </el-table-column>
-                             <el-table-column prop="price" label="单价">
+                             <el-table-column prop="price" label="价格">
 
                             </el-table-column>
                             <el-table-column label="操作">
                                 <template slot-scope="scope">
                                     <el-button type="text" size="small" @click="addFoods(scope.row)">增加</el-button>
-                                    <el-button type="text" size="small">删除</el-button>
+                                    <el-button type="text" size="small" @click="reduceCount(scope.row)">减少</el-button>
                                 </template>
                             </el-table-column>
                         </el-table>
@@ -28,7 +28,7 @@
                         </div>
                         <div class="btns">
                             <el-button type="warning" >挂单</el-button>
-                            <el-button type="danger" >删除</el-button>
+                            <el-button type="danger" @click="clear">清空</el-button>
                             <el-button type="success" >结账</el-button>
                         </div>
                     </el-tab-pane>
@@ -105,9 +105,23 @@ export default{
       type0Goods: [],
       type1Goods: [],
       type2Goods: [],
-      type3Goods: [],
-      tabelCounts: 0,
-      tabelPrice: 0
+      type3Goods: []
+    }
+  },
+  computed: {
+    tabelCounts: function () {
+      let temp = 0
+      this.tableData.forEach(ele => {
+        temp += ele.count
+      })
+      return temp
+    },
+    tabelPrice: function () {
+      let temp = 0
+      this.tableData.forEach(ele => {
+        temp += ele.price
+      })
+      return temp
     }
   },
   methods: {
@@ -118,7 +132,6 @@ export default{
           isExist = true
         }
       })
-
       if (!isExist) {
         let newFood = {
           goodsId: food.goodsId,
@@ -133,14 +146,20 @@ export default{
         arr[0].count++
         arr[0].price = singlePrice * arr[0].count
       }
-      this.tabelCounts = 0
-      this.tabelPrice = 0
-      this.tableData.forEach(ele => {
-        this.tabelCounts += ele.count
-      })
-      this.tableData.forEach(ele => {
-        this.tabelPrice += ele.price
-      })
+    },
+    reduceCount: function (food) {
+      if (food.count === 1) {
+        this.tableData = this.tableData.filter(item => item.goodsId !== food.goodsId)
+      } else {
+        let arr = this.tableData.filter(item => item.goodsId === food.goodsId)
+        let singlePrice = arr[0].price / arr[0].count
+        arr[0].count--
+        arr[0].price = singlePrice * arr[0].count
+        // console.log(arr)
+      }
+    },
+    clear: function () {
+      this.tableData = []
     }
   },
   created: function () {
